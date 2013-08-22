@@ -135,14 +135,61 @@ describe ContactsController do
   end
 
   describe 'PATCH #update' do
-    context "with valid attributes" do
-      it "updates the contact in the database"
-      it "redirects to the contact"
+    # 元々こういうデータが永続化されていたとする
+    let(:contact) { create(:contact, firstname: 'Lawrence', lastname: 'Smith') }
+
+    before do
+      controller.class.skip_before_action :authenticate
     end
 
+    # validなパラメータが渡った場合
+    context "with valid attributes" do
+      # 指定したidのobjectがセットされていること
+      it "located the requested @contact" do
+        patch :update, id: contact, contact: attributes_for(:contact)
+        expect(assigns(:contact)).to eq contact
+      end
+      # ちゃんと渡したパラメータで更新されていること
+      it "changes contact's attributes" do
+        patch :update, id: contact,
+              contact: attributes_for(:contact, firstname: 'Larry', lastname: 'Wall')
+        contact.reload
+        expect(contact.firstname).to eq 'Larry'
+        expect(contact.lastname).to eq('Wall')
+      end
+      # 更新されたらリダイレクトされていること
+      it "redirects to the contact" do
+        patch :update, id: contact, contact: attributes_for(:contact)
+        expect(response).to redirect_to contact
+      end
+    end
+
+    # invalidなパラメータの場合
     context "with invalid attributes" do
-      it "does not update the contact"
-      it "re-renders the #edit template"
+      # invalidなパラメータ用意
+      let(:invalid_attr) do
+        attributes_for(:contact, firstname: 'Larry', lastname: nil)
+      end
+
+      before do
+        allow(contact).to receive(:update).with(invalid_attr.stringify_keys) { false }
+        patch :update, id: contact, contact: invalid_attr
+      end
+
+      # 指定したidのobjectがセットされていること
+      it "located the requested @contact" do
+        expect(assigns(:contact)).to eq contact
+      end
+      # DBから読み直して、contactが更新されていないこと
+      it "does not update the contact's attributes" do
+        contact.reload
+        expect(contact.firstname).to_not eq 'Larry'
+        expect(contact.lastname).to eq 'Smith'
+      end
+      # editがレンダリングされること
+      it "re-renders the #edit template" do
+        expect(response).to render_template :edit
+      end
     end
   end
 
