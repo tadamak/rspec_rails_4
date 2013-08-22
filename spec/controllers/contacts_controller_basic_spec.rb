@@ -194,7 +194,20 @@ describe ContactsController do
   end
 
   describe 'DELETE #destroy' do
-    it "deletes the contact from the database"
-    it "redirects to users#index"
+    # 元々こういうデータが永続化されていたとする
+    let(:contact) { create(:contact, firstname: 'Lawrence', lastname: 'Smith') }
+
+    before do
+      allow(contact).to receive(:destroy).and_return(true)
+      delete :destroy, id: contact
+    end
+    # DBに無いこと
+    it "deletes the contact from the database" do
+      expect(Contact.exists? contact).to be_false
+    end
+    # 成功したらリダイレクトして一覧に戻ること
+    it "redirects to users#index" do
+      expect(response).to redirect_to contacts_path
+    end
   end
 end
