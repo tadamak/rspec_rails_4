@@ -56,8 +56,20 @@ describe ContactsController do
   end
 
   describe 'GET #new' do
-    it "assigns a new Contact to @contact"
-    it "renders the :new template"
+    # こういうリクエストが来ます、と
+    before do
+      # 簡単なcontrollerのspec例としては邪魔なのでfilterをskip
+      controller.class.skip_before_action :authenticate
+      get :new
+    end
+    # @contactには永続化されていないContactオブジェクトがセットされているはず
+    it "assigns a new Contact to @contact" do
+      expect(assigns(:contact)).to be_a_new(Contact)
+    end
+    # newテンプレートがrenderingされるはず
+    it "renders the :new template" do
+      expect(response).to render_template :new
+    end
   end
 
   describe 'GET #edit' do
