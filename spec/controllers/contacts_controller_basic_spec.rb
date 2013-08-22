@@ -1,6 +1,13 @@
 require 'spec_helper'
 
 describe ContactsController do
+  let(:phones) {
+    [
+      attributes_for(:phone, phone_type: "home"),
+      attributes_for(:phone, phone_type: "office"),
+      attributes_for(:phone, phone_type: "mobile")
+    ]
+  }
 
   describe 'GET #index' do
     # こういうデータがDBにあったとして
@@ -73,18 +80,57 @@ describe ContactsController do
   end
 
   describe 'GET #edit' do
-    it "assigns the requested contact to @contact"
-    it "renders the :edit template"
+    let(:contact) { create(:contact, firstname: 'Lawrence', lastname: 'Smith') }
+    before do
+      controller.class.skip_before_action :authenticate
+      get :edit, id: contact
+    end
+    # viewで使う@contactには、パラメータで渡したidをもつContactオブジェクトがセットされていること
+    it "assigns the requested contact to @contact" do
+      expect(assigns(:contact)).to eq contact
+    end
+    it "renders the :edit template" do
+      expect(response).to render_template :edit
+    end
   end
 
   describe "POST #create" do
-    context "with valid attributes" do
-      it "saves the new contact in the database"
-      it "redirects to contacts#show"
+    before do
+      controller.class.skip_before_action :authenticate
     end
+
+    # ちゃんとしたパラメータだったらどうなるか
+    context "with valid attributes" do
+      before do
+        post :create, contact: attributes_for(:contact, phones_attributes: phones)
+      end
+      # 新規に保存されていることを確認
+      it "saves the new contact in the database" do
+        expect(Contact.exists? assigns[:contact]).to be_true
+        # 以下のようにContactクラスのobject数が1増えていることを確認するのも有り
+        # expect {
+        #   post :create, contact: attributes_for(:contact, phones_attributes: phones)
+        # }.to change(Contact, :count).by(1)
+      end
+      # showへリダイレクトされるはず
+      it "redirects to contacts#show" do
+        expect(response).to redirect_to Contact.last
+      end
+    end
+
+    # 不正なパラメータならどうなるか
     context "with invalid attributes" do
-      it "does not save the new contact in the database"
-      it "re-renders the :new template"
+      # 保存されないはず
+      it "does not save the new contact in the database" do
+        expect {
+          post :create, contact: attributes_for(:contact)
+        }.to_not change(Contact, :count)
+      end
+      # 検証失敗でnewがレンダリングされるはず
+      it "re-renders the :new template" do
+        post :create, contact: attributes_for(:contact)
+        expect(response).to render_template :new
+      end
     end
   end
 
