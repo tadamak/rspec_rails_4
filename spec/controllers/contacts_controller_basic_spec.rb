@@ -37,8 +37,22 @@ describe ContactsController do
   end
 
   describe 'GET #show' do
-    it "assigns the requested message to @contact"
-    it "renders the :show template"
+    # こういうデータがDBにあったとして
+    let(:contact) { create(:contact, firstname: 'Lawrence', lastname: 'Smith') }
+    before do
+      # Contactをstub化してあらかじめ仕込んでおいて
+      allow(Contact).to receive(:find).with(contact.id.to_s).and_return(contact)
+      # こういうリクエストがあったとする
+      get :show, id: contact
+    end
+    # viewで使う@contactには、こういうデータがセットされているはず
+    it "assigns the requested message to @contact" do
+      expect(assigns(:contact)).to eq contact
+    end
+    # showテンプレートがrenderingされるはず
+    it "renders the :show template" do
+      expect(response).to render_template :show
+    end
   end
 
   describe 'GET #new' do
