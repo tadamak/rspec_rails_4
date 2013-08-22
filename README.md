@@ -1,9 +1,24 @@
-**Looking for the Rails 3.2 version?** Please see <https://github.com/ruralocity/everyday_rails_rspec_rails_3_2>.
+## Installation
 
-Sample Rails 4.0.x application for [Everyday Rails Testing with RSpec: A Practical Approach to Test-driven Development](https://leanpub.com/everydayrailsrspec) by Aaron Sumner. This repository demonstrates incremental testing of an existing application, starting with an untested codebase and working through model, controller, and feature specs.
+まずbundler入れます。
+```
+gem install bundler
+```
 
-Each chapter's progress has a specific branch in this repository. See chapter 1 of the book for details.
+次に必要なgemを入れます。
+```
+bundle install
+```
 
-Using Git, you can check out each version by name. See details in the book.
+spec実行します。
+```
+spring rspec
+```
 
-If you're not comfortable with Git, you can also use GitHub's handy branch/tag filter to select a specific tag and browse the source code online. To learn more about Git, I recommend the free resources [Git Immersion](http://gitimmersion.com/) or [Try Git](http://www.codeschool.com/courses/try-git).
+## サンプルコードについて
+
+以下の本のサンプルアプリをforkしています。
+
+[Everyday Rails Testing with RSpec: A Practical Approach to Test-driven Development](https://leanpub.com/everydayrailsrspec) by Aaron Sumner.
+
+本は電子書籍で1k〜2kなんで買ってみてもいいんじゃないでしょうか。
